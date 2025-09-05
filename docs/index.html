@@ -1,7 +1,113 @@
-<html>
-    <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Irish Backing Chords Sets</title>
 
-        <title>Test</title>
+  <!-- Choices.js CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 
-    </head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      max-width: 600px;
+    }
+
+    .chords-display {
+      margin-top: 20px;
+    }
+
+    .chords-display div {
+      margin-bottom: 12px;
+      font-size: 1rem;
+      white-space: pre-line; /* <-- This preserves \n as line breaks */
+    }
+
+    label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <label for="tuneSelect">Select Tunes:</label>
+  <select id="tuneSelect" multiple></select>
+
+  <div class="chords-display" id="chordsDisplay"></div>
+
+  <!-- Choices.js JS -->
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  
+  <script type="text/javascript" src="./helpers.js"></script>
+
+  <script>
+    // Populate the select element
+    const selectElement = document.getElementById('tuneSelect');
+
+    fetchAndParseTunes("./data/vashon.txt").then(result => {       
+        all_tunes = result
+        
+        all_tunes.forEach(tune => {
+            const option = document.createElement('option');
+            option.value = tune.tune_name;
+            option.textContent = tune.tune_name;
+            selectElement.appendChild(option);
+        });
+            // Initialize Choices.js
+        const choices = new Choices(selectElement, {
+            removeItemButton: true,
+            placeholder: false,
+            noResultsText: 'No matching tunes found',
+            itemSelectText: '',
+            shouldSort: false,
+            shouldSortItems: false
+        });
+    });
+
+    // Chords display
+    const chordsDisplay = document.getElementById('chordsDisplay');
+
+  // Update the chords display based on selectedTuneNames array
+  function updateChords() {
+    chordsDisplay.innerHTML = '';
+
+    selectedTuneNames.forEach(name => {
+      const tune = all_tunes.find(t => t.tune_name === name);
+      if (tune) {
+        const div = document.createElement('div');
+        div.innerHTML = `<strong>${tune.tune_name}</strong>\n<em>${tune.tune_type} in ${tune.tune_key}</em>\n${tune.tune_chords}<hr />`;
+        chordsDisplay.appendChild(div);
+      }
+    });
+  }
+
+    const selectedTuneNames = [];
+    // Listen to item added
+    selectElement.addEventListener('addItem', function (event) {
+        const name = event.detail.value;
+        if (!selectedTuneNames.includes(name)) {
+        selectedTuneNames.push(name);
+        updateChords();
+        }
+    }, false);
+
+    // Listen to item removed
+    selectElement.addEventListener('removeItem', function (event) {
+        const name = event.detail.value;
+        const index = selectedTuneNames.indexOf(name);
+        if (index !== -1) {
+        selectedTuneNames.splice(index, 1);
+        updateChords();
+        }
+    }, false);
+
+    // Handle selection change
+    selectElement.addEventListener('change', function () {
+      console.log(selectElement.selectedOptions)
+      const selectedNames = Array.from(selectElement.selectedOptions).map(opt => opt.value);
+      updateChords(selectedNames);
+    });
+  </script>
+</body>
 </html>

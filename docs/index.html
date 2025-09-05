@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Irish Backing Chords Sets</title>
 
   <!-- Choices.js CSS -->
@@ -10,8 +11,13 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 30px;
-      max-width: 600px;
+      text-align: center;
+    }
+
+    div#main{ 
+      margin: auto;
+      width: 99%;
+      text-align: left;
     }
 
     .chords-display {
@@ -21,20 +27,26 @@
     .chords-display div {
       margin-bottom: 12px;
       font-size: 1rem;
-      white-space: pre-line; /* <-- This preserves \n as line breaks */
+      font-family: 'Courier New', Courier, monospace;
+      white-space: pre; /* <-- This preserves \n as line breaks */
     }
 
     label {
       font-weight: bold;
     }
+
+    .choices__input {
+      min-height: 40px;
+      font-size: 16px; /* Prevent zoom on iOS */
+    }
   </style>
 </head>
 <body>
-
-  <label for="tuneSelect">Select Tunes:</label>
-  <select id="tuneSelect" multiple></select>
-
-  <div class="chords-display" id="chordsDisplay"></div>
+  <div id="main">
+    <label for="tuneSelect">Select Tunes:</label>
+    <select id="tuneSelect" multiple></select>
+    <div class="chords-display" id="chordsDisplay"></div>
+  </div>
 
   <!-- Choices.js JS -->
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
@@ -61,7 +73,8 @@
             noResultsText: 'No matching tunes found',
             itemSelectText: '',
             shouldSort: false,
-            shouldSortItems: false
+            shouldSortItems: false,
+            searchEnabled: true
         });
     });
 
@@ -108,6 +121,22 @@
       const selectedNames = Array.from(selectElement.selectedOptions).map(opt => opt.value);
       updateChords(selectedNames);
     });
+
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      const choicesInput = document.querySelector('.choices__input');
+      const container = document.querySelector('.choices');
+
+      // Listen for tap anywhere on the input area
+      container.addEventListener('touchstart', () => {
+        if (choicesInput) {
+          setTimeout(() => {
+            choicesInput.focus();
+          }, 0);
+        }
+      });
+    }
+
   </script>
 </body>
 </html>
